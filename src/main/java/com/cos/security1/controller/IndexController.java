@@ -8,7 +8,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,13 +27,28 @@ public class IndexController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @GetMapping("/test/login")
     @ResponseBody
-    public String loginTest(Authentication authentication){ //DI 을 하면 authentication안에 
+    public String loginTest(Authentication authentication,
+                            @AuthenticationPrincipal UserDetails userDetails){ // PrincipalDetails가 UserDetails를 상속 받았기 때문에 PrincipalDetails로 대체 가능
+                                                                                //oauth는 CastClassException 발생 !
         System.out.println("/test/login =======================");
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         System.out.println("authentication : " + principalDetails.getUser());
 
+        System.out.println("authentication : " + userDetails.getUsername());
         return "세션 정보 확인";
     }
+    @GetMapping("/test/oauth/login")
+    @ResponseBody
+    public String oauthloginTest(Authentication authentication,
+                                 @AuthenticationPrincipal OAuth2User oAuth ){
+        System.out.println("/test/oauth/login =======================");
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        System.out.println("authentication : " + oAuth2User.getAttributes());
+        System.out.println("oAuthUser : " + oAuth.getAttributes());
+
+        return "OAuth 세션 정보 확인";
+    }
+
 
     @GetMapping({"","/"})
     public String index(){
