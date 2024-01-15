@@ -1,8 +1,13 @@
 package com.cos.security1.controller;
 
+import com.cos.security1.auth.PrincipalDetails;
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +22,15 @@ public class IndexController {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @GetMapping("/test/login")
+    @ResponseBody
+    public String loginTest(Authentication authentication){ //DI 을 하면 authentication안에 
+        System.out.println("/test/login =======================");
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        System.out.println("authentication : " + principalDetails.getUser());
+
+        return "세션 정보 확인";
+    }
 
     @GetMapping({"","/"})
     public String index(){
@@ -57,6 +71,19 @@ public class IndexController {
     @GetMapping("/joinForm")
     public String joinForm(){
         return "joinForm";
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/info")
+    @ResponseBody
+    public String info(){
+        return "개인정보";
+    }
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/data")
+    @ResponseBody
+    public String data(){
+        return "데이터";
     }
 
 }

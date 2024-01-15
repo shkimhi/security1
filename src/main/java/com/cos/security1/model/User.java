@@ -23,5 +23,7 @@ public class User {
     private String role; // ROLE_USER , ROLE_ADMIN
     @CreationTimestamp
     private Timestamp createDate;
+    private String provider; //oauth 타입
+    private String providerId; //oauth ClientRegistrationId
 
 }
